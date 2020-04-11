@@ -4,30 +4,28 @@ import 'package:patronblock/src/models/producto_model.dart';
 import 'package:patronblock/src/providers/producto_provider.dart';
 
 class HomePage extends StatelessWidget {
-  
-   final productosProvider = new ProductosProvider();
-    
-
+   
   @override
   Widget build(BuildContext context) {
 
-    final bloc = Provider.of(context);
-   
+    final productosBloc =  Provider.productosBloc(context);
+    productosBloc.cargarProductos();
+
     return Scaffold(
     appBar: AppBar(
     title: Text('Home')
     ),
-    body:  _crearListado(),
+    body:  _crearListado(productosBloc),
     floatingActionButton: _crearBoton(context),
 
     );
   }
 
 
-Widget _crearListado()
+Widget _crearListado(ProductosBloc productosBloc)
 {
-  return FutureBuilder(
-  future: productosProvider.cargarProductos(),
+  return StreamBuilder(
+  stream: productosBloc.productosStream,
   builder: (BuildContext context, AsyncSnapshot<List<ProductoModel>> snapshot)
   {
      if(snapshot.hasData)
@@ -36,7 +34,7 @@ Widget _crearListado()
 
         return ListView.builder(
         itemCount: productos.length,
-        itemBuilder: (context, i) => _crearItem(context, productos[i]),
+        itemBuilder: (context, i) => _crearItem(context, productos[i], productosBloc),
         );
      }else
      {
@@ -50,23 +48,35 @@ Widget _crearListado()
 }
 
 
-Widget _crearItem(BuildContext context, ProductoModel producto)
+Widget _crearItem(BuildContext context, ProductoModel producto, ProductosBloc productosBloc)
 {
   return Dismissible(
     key: UniqueKey(),
     background: Container(
     color: Colors.red,
     ),
-    onDismissed: (direccion){
-    
-    productosProvider.borrarProducto(producto.id);
-
-    },
-    child: ListTile(
+    onDismissed: (direccion) =>  productosBloc.borrarProducto(producto.id),
+    child: Card(
+    child: Column(
+    children: <Widget>[
+    (producto.photoUrl == null) 
+    ? Image(image: AssetImage('assets/no-image.png'))
+    : FadeInImage(
+    image: NetworkImage(producto.photoUrl),
+    placeholder: AssetImage('assets/loading.gif'),
+    height: 300.0,
+    width: double.infinity,
+    fit: BoxFit.cover
+    ),
+    ListTile(
     title: Text('${producto.titulo} - ${producto.valor}'),
     subtitle: Text(producto.id),
-    onTap: () => Navigator.pushNamed(context, 'producto'),
+    onTap: () => Navigator.pushNamed(context, 'producto', arguments: producto),
     ),
+    ],
+    )
+
+    )
   );
 }
 

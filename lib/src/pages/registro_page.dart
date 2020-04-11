@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:patronblock/src/blocs/login_block.dart';
 import 'package:patronblock/src/blocs/provider.dart';
 import 'package:patronblock/src/providers/usuario_provider.dart';
-import 'package:patronblock/src/utils/utils.dart' as utils;
+import 'package:patronblock/src/utils/utils.dart';
 
-class Login extends StatelessWidget {
+class RegistroPage extends StatelessWidget {
 
   final usuarioProvider = new UsuarioProvider();
+
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +53,7 @@ Widget _loginForm(BuildContext context)
   
   child: Column(
   children: <Widget>[
-  Text('Ingreso', style: TextStyle(fontSize: 20.0)),
+  Text('Registro', style: TextStyle(fontSize: 20.0)),
   SizedBox(height: 20.0),
   _crearEmail(bloc),
   SizedBox(height: 30.0),
@@ -66,8 +66,8 @@ Widget _loginForm(BuildContext context)
   
   ),
   FlatButton(
-  child: Text('Crear una nueva cuenta'),
-  onPressed: () => Navigator.pushReplacementNamed(context, 'registro')
+  child: Text('¿Ya tienes cuenta? Login'),
+  onPressed: () => Navigator.pushReplacementNamed(context, 'login')
   ),
   SizedBox(height: 100.0)
   ],
@@ -146,7 +146,7 @@ Widget _crearBoton(LoginBloc bloc)
        elevation: 0.0,
        color: Colors.deepPurple,
        textColor: Colors.white,
-       onPressed: snapshot.hasData ? () =>  _login(bloc, context) : null,
+       onPressed: snapshot.hasData ? () =>  _register(bloc, context) : null,
     ); 
     },
     
@@ -222,26 +222,24 @@ Widget _crearFondo(BuildContext context)
 }
 
 
-_login(LoginBloc bloc, BuildContext context) async
-{
+_register(LoginBloc bloc, BuildContext context) async
+ {
    
-  Map info = await usuarioProvider.login(bloc.email, bloc.password);
+   final info = await usuarioProvider.nuevoUsuario(bloc.email, bloc.password);
 
-  if(info['ok']) {
+   if(info['ok']) {
+
 
   Navigator.pushReplacementNamed(context, 'home');
 
   }else{
 
-   utils.mostrarAlerta(context, info['mensaje']);
+   mostrarAlerta(context, info['mensaje']);
 
   }
 
-}
 
 
 
-
-
-
+ }
 }
